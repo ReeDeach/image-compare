@@ -3,133 +3,803 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111218">\n<link rel="manifest" href="./manifest.webmanifest">\n<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<title>Сравнение</title>
+<meta name="theme-color" content="#111218">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>Сравнение изображений</title>
+
 <style>
-:root{--bg:#111218;--panel:#1b1c24;--panel2:#242530;--text:#f4f3f8;--muted:#a3a3b2;--accent:#b9a0ff;--accent2:#8d73e8;--line:#343541;--radius:20px}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-body{display:flex;flex-direction:column;min-height:100dvh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.app{width:100%;max-width:900px;margin:auto;display:flex;flex-direction:column;height:100%;padding:18px 16px 12px;gap:14px}
-header{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 0}
-.brand{display:flex;align-items:center;gap:11px}
-.logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#bba4ff,#7460c8);display:grid;place-items:center;font-size:20px;color:#15121f;box-shadow:0 5px 20px #8d73e833}
-h1{font-size:20px;margin:0;font-weight:750;letter-spacing:-.4px}
-.subtitle{font-size:12px;color:var(--muted);margin-top:3px}
-.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--text);width:42px;height:42px;border-radius:14px;font-size:18px}
-.uploads{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.upload-card{position:relative;min-height:86px;border:1px dashed #555365;border-radius:17px;background:var(--panel);padding:12px;display:flex;align-items:center;gap:10px;overflow:hidden;transition:.2s}
-.upload-card.loaded{border-style:solid;border-color:#675d8b;background:linear-gradient(135deg,#262431,#1b1c24)}
-.upload-card input{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:3}
-.thumb{width:52px;height:52px;border-radius:12px;background:#30313b;display:grid;place-items:center;overflow:hidden;flex-shrink:0;font-size:22px;color:var(--muted)}
-.thumb img{width:100%;height:100%;object-fit:cover}
-.upload-meta{min-width:0}
-.upload-meta strong{font-size:13px;display:block}
-.upload-meta small{display:block;color:var(--muted);font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.tool-label{font-size:13px;color:var(--muted);font-weight:600}
-.swap{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 12px;color:var(--text);font-size:13px}
-.stage{flex:1;min-height:220px;position:relative;background:#08090d;border:1px solid #292a34;border-radius:22px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.empty{padding:24px;text-align:center;color:var(--muted)}
-.empty .symbol{font-size:36px;margin-bottom:12px}
-.empty strong{display:block;color:#dedde7;font-size:15px;margin-bottom:5px}
-.empty p{font-size:12px;line-height:1.5;margin:0}
-.mode{position:absolute;inset:0;display:none}
-.mode.active{display:flex}
-.side{gap:1px;background:#101116}
-.side-pane{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;background:#050507;overflow:hidden}
-.side-pane img,.fit-image{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}
-.slider-mode{display:block}
-.layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.layer img{width:100%;height:100%;object-fit:contain}
-#top-image{clip-path:inset(0 calc(100% - var(--split)) 0 0)}
-.split-line{position:absolute;top:0;bottom:0;left:var(--split);width:2px;background:var(--accent);box-shadow:0 0 10px #b9a0ff88;z-index:2;pointer-events:none}
-.split-knob{position:absolute;top:50%;left:var(--split);transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:var(--accent);color:#211b34;display:grid;place-items:center;font-weight:800;z-index:3;pointer-events:none;box-shadow:0 4px 20px #0008}
-#split-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:4;cursor:ew-resize}
-.opacity-mode{display:block}
-#opacity-top{opacity:.5}
-.blink-mode{align-items:center;justify-content:center}
-.blink-mode img{max-width:100%;max-height:100%;object-fit:contain}
-.controls{background:var(--panel);border:1px solid #292a34;border-radius:18px;padding:12px 14px;display:none}
-.controls.show{display:block}
-.control-head{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}
-input[type=range]{width:100%;accent-color:var(--accent)}
-.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;background:#1b1c24;padding:7px;border:1px solid #2c2d37;border-radius:17px}
-.mode-btn{border:0;background:transparent;color:var(--muted);border-radius:12px;padding:10px 4px;font-size:11px;font-weight:650;display:flex;flex-direction:column;gap:5px;align-items:center}
-.mode-btn .ico{font-size:18px}
-.mode-btn.active{background:#373145;color:#d5c9ff;box-shadow:inset 0 0 0 1px #655789}
-.footer{font-size:10px;color:#747481;text-align:center;padding-bottom:2px}
-@media(min-width:700px){.app{padding:24px;gap:16px}.stage{min-height:350px}.upload-card{min-height:100px}.thumb{width:60px;height:60px}.upload-meta small{max-width:180px}.mode-btn{font-size:12px}}
-@media(max-height:650px){.app{gap:8px;padding-top:10px}.logo{width:34px;height:34px}.upload-card{min-height:68px;padding:8px}.thumb{width:42px;height:42px}.stage{min-height:150px}.modes{padding:5px}.mode-btn{padding:7px 2px}}
+:root {
+  --bg:#111218;
+  --panel:#1b1c24;
+  --panel2:#242530;
+  --text:#f4f3f8;
+  --muted:#a3a3b2;
+  --accent:#b9a0ff;
+  --line:#343541;
+}
+
+* {
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body {
+  margin:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+body {
+  display:flex;
+  flex-direction:column;
+  min-height:100dvh;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+
+.app {
+  width:100%;
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  padding:18px 16px 12px;
+  gap:14px;
+}
+
+header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.brand {
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.logo {
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#bba4ff,#7460c8);
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  color:#15121f;
+}
+
+h1 {
+  font-size:19px;
+  margin:0;
+  font-weight:750;
+}
+
+.subtitle {
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+button {
+  cursor:pointer;
+  touch-action:manipulation;
+}
+
+.icon-btn {
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:white;
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  font-size:20px;
+}
+
+.uploads {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.upload-card {
+  position:relative;
+  min-height:86px;
+  border:1px dashed #555365;
+  border-radius:17px;
+  background:var(--panel);
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  overflow:hidden;
+}
+
+.upload-card.loaded {
+  border-style:solid;
+  border-color:#675d8b;
+}
+
+.upload-card input {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  z-index:3;
+  cursor:pointer;
+}
+
+.thumb {
+  width:52px;
+  height:52px;
+  border-radius:12px;
+  background:#30313b;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  flex-shrink:0;
+  font-size:22px;
+}
+
+.thumb img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.upload-meta {
+  min-width:0;
+}
+
+.upload-meta strong {
+  font-size:12px;
+  display:block;
+}
+
+.upload-meta small {
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  max-width:110px;
+}
+
+.toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.tool-label {
+  font-size:13px;
+  color:var(--muted);
+}
+
+.swap {
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:9px 12px;
+  color:white;
+}
+
+.stage {
+  flex:1;
+  min-height:220px;
+  position:relative;
+  background:#08090d;
+  border:1px solid #292a34;
+  border-radius:22px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.empty {
+  padding:24px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.empty .symbol {
+  font-size:36px;
+  margin-bottom:12px;
+}
+
+.empty strong {
+  display:block;
+  color:#dedde7;
+  font-size:15px;
+  margin-bottom:5px;
+}
+
+.empty p {
+  font-size:12px;
+  line-height:1.5;
+}
+
+/* ВАЖНО: неактивные режимы не перекрывают интерфейс */
+
+.mode {
+  position:absolute;
+  inset:0;
+  display:none !important;
+  pointer-events:none;
+}
+
+.mode.active {
+  display:flex !important;
+  pointer-events:auto;
+}
+
+#mode-slider.active,
+#mode-opacity.active {
+  display:block !important;
+}
+
+/* Рядом */
+
+.side {
+  gap:1px;
+  background:#101116;
+}
+
+.side-pane {
+  flex:1;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#050507;
+  overflow:hidden;
+}
+
+.side-pane img {
+  max-width:100%;
+  max-height:100%;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* Шторка */
+
+.layer {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+
+.layer img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+#top-image {
+  clip-path:inset(0 calc(100% - var(--split)) 0 0);
+}
+
+.split-line {
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:var(--split);
+  width:2px;
+  background:var(--accent);
+  z-index:2;
+  pointer-events:none;
+}
+
+.split-knob {
+  position:absolute;
+  top:50%;
+  left:var(--split);
+  transform:translate(-50%,-50%);
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:var(--accent);
+  color:#211b34;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  z-index:3;
+  pointer-events:none;
+}
+
+#split-range {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  z-index:4;
+  cursor:ew-resize;
+  touch-action:pan-y;
+}
+
+/* Прозрачность */
+
+#opacity-top {
+  opacity:.5;
+}
+
+/* Мигание */
+
+.blink-mode {
+  align-items:center;
+  justify-content:center;
+}
+
+.blink-mode img {
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+/* Панель настройки */
+
+.controls {
+  background:var(--panel);
+  border:1px solid #292a34;
+  border-radius:18px;
+  padding:12px 14px;
+  display:none;
+}
+
+.controls.show {
+  display:block;
+}
+
+.control-head {
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+input[type=range] {
+  width:100%;
+  accent-color:var(--accent);
+}
+
+/* Нижняя навигация */
+
+.modes {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  background:#1b1c24;
+  padding:7px;
+  border:1px solid #2c2d37;
+  border-radius:17px;
+  position:relative;
+  z-index:10;
+}
+
+.mode-btn {
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  border-radius:12px;
+  padding:10px 4px;
+  font-size:11px;
+  font-weight:650;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  align-items:center;
+}
+
+.mode-btn .ico {
+  font-size:19px;
+}
+
+.mode-btn.active {
+  background:#373145;
+  color:#d5c9ff;
+  box-shadow:inset 0 0 0 1px #655789;
+}
+
+.footer {
+  font-size:10px;
+  color:#747481;
+  text-align:center;
+}
+
+@media(min-width:700px) {
+  .app {
+    padding:24px;
+    gap:16px;
+  }
+  .stage {
+    min-height:350px;
+  }
+}
+
+@media(max-height:650px) {
+  .app {
+    gap:8px;
+    padding-top:10px;
+  }
+  .stage {
+    min-height:150px;
+  }
+}
 </style>
 </head>
+
 <body>
 <div class="app">
+
 <header>
- <div class="brand"><div class="logo">◫</div><div><h1>Сравнение изображений</h1><div class="subtitle">Найди разницу между версиями</div></div></div>
- <button class="icon-btn" id="reset" aria-label="Сброс" title="Сброс">↺</button>
+  <div class="brand">
+    <div class="logo">◫</div>
+    <div>
+      <h1>Сравнение изображений</h1>
+      <div class="subtitle">Сравнивай версии изображений</div>
+    </div>
+  </div>
+  <button class="icon-btn" id="reset">↺</button>
 </header>
+
 <section class="uploads">
- <label class="upload-card" id="card1"><input id="file1" type="file" accept="image/*"><div class="thumb" id="thumb1">＋</div><div class="upload-meta"><strong>Изображение 1</strong><small id="name1">Выбрать из галереи</small></div></label>
- <label class="upload-card" id="card2"><input id="file2" type="file" accept="image/*"><div class="thumb" id="thumb2">＋</div><div class="upload-meta"><strong>Изображение 2</strong><small id="name2">Выбрать из галереи</small></div></label>
+
+<label class="upload-card" id="card1">
+  <input id="file1" type="file" accept="image/*">
+  <div class="thumb" id="thumb1">＋</div>
+  <div class="upload-meta">
+    <strong>Изображение 1</strong>
+    <small id="name1">Выбрать из галереи</small>
+  </div>
+</label>
+
+<label class="upload-card" id="card2">
+  <input id="file2" type="file" accept="image/*">
+  <div class="thumb" id="thumb2">＋</div>
+  <div class="upload-meta">
+    <strong>Изображение 2</strong>
+    <small id="name2">Выбрать из галереи</small>
+  </div>
+</label>
+
 </section>
-<div class="toolbar"><span class="tool-label">Режим сравнения</span><button class="swap" id="swap">⇄ Поменять</button></div>
-<main class="stage" id="stage">
- <div class="empty" id="empty"><div class="symbol">▧</div><strong>Загрузите две картинки</strong><p>Выберите изображения выше,<br>чтобы начать сравнение</p></div>
- <div class="mode side" id="mode-side"><div class="side-pane"><img id="side1"></div><div class="side-pane"><img id="side2"></div></div>
- <div class="mode slider-mode" id="mode-slider" style="--split:50%"><div class="layer"><img id="slider-bg"></div><div class="layer"><img id="top-image"></div><div class="split-line"></div><div class="split-knob">↔</div><input id="split-range" type="range" min="0" max="100" value="50" aria-label="Положение шторки"></div>
- <div class="mode opacity-mode" id="mode-opacity"><div class="layer"><img id="opacity-bg"></div><div class="layer"><img id="opacity-top"></div></div>
- <div class="mode blink-mode" id="mode-blink"><img id="blink-image"></div>
-</main>
-<section class="controls" id="controls">
- <div class="control-head"><span id="control-title">Положение шторки</span><span id="control-value">50%</span></div>
- <input id="adjust" type="range" min="0" max="100" value="50">
-</section>
-<nav class="modes">
- <button class="mode-btn active" data-mode="side"><span class="ico">▥</span>Рядом</button>
- <button class="mode-btn" data-mode="slider"><span class="ico">↔</span>Шторка</button>
- <button class="mode-btn" data-mode="opacity"><span class="ico">◐</span>Слой</button>
- <button class="mode-btn" data-mode="blink"><span class="ico">◉</span>Мигание</button>
-</nav>
-<div class="footer">Изображения обрабатываются локально на устройстве</div>
+
+<div class="toolbar">
+  <span class="tool-label">Режим сравнения</span>
+  <button class="swap" id="swap">⇄ Поменять</button>
 </div>
+
+<main class="stage">
+
+<div class="empty" id="empty">
+  <div class="symbol">▧</div>
+  <strong>Загрузите две картинки</strong>
+  <p>Выберите изображения выше,<br>чтобы начать сравнение</p>
+</div>
+
+<div class="mode side active" id="mode-side">
+  <div class="side-pane"><img id="side1"></div>
+  <div class="side-pane"><img id="side2"></div>
+</div>
+
+<div class="mode" id="mode-slider" style="--split:50%">
+  <div class="layer"><img id="slider-bg"></div>
+  <div class="layer"><img id="top-image"></div>
+  <div class="split-line"></div>
+  <div class="split-knob">↔</div>
+  <input id="split-range" type="range" min="0" max="100" value="50">
+</div>
+
+<div class="mode" id="mode-opacity">
+  <div class="layer"><img id="opacity-bg"></div>
+  <div class="layer"><img id="opacity-top"></div>
+</div>
+
+<div class="mode blink-mode" id="mode-blink">
+  <img id="blink-image">
+</div>
+
+</main>
+
+<section class="controls" id="controls">
+  <div class="control-head">
+    <span id="control-title">Положение шторки</span>
+    <span id="control-value">50%</span>
+  </div>
+  <input id="adjust" type="range" min="0" max="100" value="50">
+</section>
+
+<nav class="modes">
+  <button class="mode-btn active" data-mode="side">
+    <span class="ico">▥</span>Рядом
+  </button>
+  <button class="mode-btn" data-mode="slider">
+    <span class="ico">↔</span>Шторка
+  </button>
+  <button class="mode-btn" data-mode="opacity">
+    <span class="ico">◐</span>Слой
+  </button>
+  <button class="mode-btn" data-mode="blink">
+    <span class="ico">◉</span>Мигание
+  </button>
+</nav>
+
+<div class="footer">
+  Изображения обрабатываются локально на устройстве
+</div>
+
+</div>
+
 <script>
-(()=> {
- const $=id=>document.getElementById(id);
- let sources=[null,null], names=["",""], mode="side", blinkTimer=null, blinkFirst=true, blinkSpeed=500;
- const imgs={side1:$("side1"),side2:$("side2"),sliderBg:$("slider-bg"),top:$("top-image"),opacityBg:$("opacity-bg"),opacityTop:$("opacity-top"),blink:$("blink-image")};
- const controls=$("controls"), adjust=$("adjust"), title=$("control-title"), value=$("control-value");
- function setSrc(img,src){img.src=src||""}
- function update(){
-  const ready=!!(sources[0]&&sources[1]);$("empty").style.display=ready?"none":"block";
-  Object.values(document.querySelectorAll(".mode")).forEach(el=>el.classList.toggle("active",ready&&el.id==="mode-"+mode));
-  if(!ready)return;
-  setSrc(imgs.side1,sources[0]);setSrc(imgs.side2,sources[1]);setSrc(imgs.sliderBg,sources[0]);setSrc(imgs.top,sources[1]);setSrc(imgs.opacityBg,sources[0]);setSrc(imgs.opacityTop,sources[1]);
-  if(mode==="blink")setSrc(imgs.blink,sources[blinkFirst?0:1]);
-  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
-  controls.classList.toggle("show",mode==="slider"||mode==="opacity"||mode==="blink");
-  title.textContent=mode==="slider"?"Положение шторки":mode==="opacity"?"Прозрачность второго изображения":"Скорость мигания";
-  adjust.value=mode==="blink"?blinkSpeed:50;
-  value.textContent=mode==="blink"?`${blinkSpeed} мс`:"50%";
- }
- function setMode(m){mode=m;if(blinkTimer){clearInterval(blinkTimer);blinkTimer=null}if(m==="blink"){blinkFirst=true;startBlink()}update()}
- function startBlink(){if(!sources[0]||!sources[1])return;blinkTimer=setInterval(()=>{blinkFirst=!blinkFirst;setSrc(imgs.blink,sources[blinkFirst?0:1)},blinkSpeed)}
- function load(i,file){if(!file)return;if(!file.type.startsWith("image/"))return;const old=sources[i];sources[i]=URL.createObjectURL(file);names[i]=file.name;
-  $("name"+(i+1)).textContent=file.name;$("card"+(i+1)).classList.add("loaded");$("thumb"+(i+1)).innerHTML=`<img src="${sources[i]}" alt="">`;
-  if(old)URL.revokeObjectURL(old);update();if(mode==="blink"){clearInterval(blinkTimer);startBlink()}
- }
- $("file1").addEventListener("change",e=>load(0,e.target.files[0]));$("file2").addEventListener("change",e=>load(1,e.target.files[0]));
- document.querySelectorAll(".mode-btn").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.mode)));
- $("split-range").addEventListener("input",e=>{const v=e.target.value;$("mode-slider").style.setProperty("--split",v+"%");adjust.value=v;value.textContent=v+"%"});
- adjust.addEventListener("input",e=>{let v=+e.target.value;value.textContent=mode==="blink"?v+" мс":v+"%";if(mode==="slider"){$("split-range").value=v;$("mode-slider").style.setProperty("--split",v+"%")}if(mode==="opacity")imgs.opacityTop.style.opacity=v/100;if(mode==="blink"){blinkSpeed=Math.max(100,v*10);clearInterval(blinkTimer);startBlink()}});
- $("swap").addEventListener("click",()=>{sources.reverse();names.reverse();$("name1").textContent=names[0]||"Выбрать из галереи";$("name2").textContent=names[1]||"Выбрать из галереи";$("thumb1").innerHTML=sources[0]?`<img src="${sources[0]}">`:"＋";$("thumb2").innerHTML=sources[1]?`<img src="${sources[1]}">`:"＋";update()});
- $("reset").addEventListener("click",()=>{if(blinkTimer)clearInterval(blinkTimer);sources.forEach(s=>s&&URL.revokeObjectURL(s));sources=[null,null];names=["",""];["file1","file2"].forEach(id=>$(id).value="");["name1","name2"].forEach(id=>$(id).textContent="Выбрать из галереи");["thumb1","thumb2"].forEach(id=>$(id).textContent="＋");["card1","card2"].forEach(id=>$(id).classList.remove("loaded"));mode="side";adjust.value=50;$("split-range").value=50;$("mode-slider").style.setProperty("--split","50%");imgs.opacityTop.style.opacity=.5;update()});
- update();
+(() => {
+
+const $ = id => document.getElementById(id);
+
+let sources = [null,null];
+let mode = "side";
+let blinkTimer = null;
+let blinkFirst = true;
+let blinkSpeed = 500;
+
+const imgs = {
+  side1:$("side1"),
+  side2:$("side2"),
+  sliderBg:$("slider-bg"),
+  top:$("top-image"),
+  opacityBg:$("opacity-bg"),
+  opacityTop:$("opacity-top"),
+  blink:$("blink-image")
+};
+
+const controls = $("controls");
+const adjust = $("adjust");
+const title = $("control-title");
+const value = $("control-value");
+
+function setSrc(img,src) {
+  img.src = src || "";
+}
+
+function update() {
+
+  const ready = !!(sources[0] && sources[1]);
+
+  $("empty").style.display = ready ? "none" : "block";
+
+  document.querySelectorAll(".mode").forEach(el => {
+    el.classList.toggle(
+      "active",
+      ready && el.id === "mode-" + mode
+    );
+  });
+
+  document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.classList.toggle(
+      "active",
+      btn.dataset.mode === mode
+    );
+  });
+
+  controls.classList.toggle(
+    "show",
+    ready && ["slider","opacity","blink"].includes(mode)
+  );
+
+  if (!ready) return;
+
+  setSrc(imgs.side1,sources[0]);
+  setSrc(imgs.side2,sources[1]);
+  setSrc(imgs.sliderBg,sources[0]);
+  setSrc(imgs.top,sources[1]);
+  setSrc(imgs.opacityBg,sources[0]);
+  setSrc(imgs.opacityTop,sources[1]);
+
+  if (mode === "blink") {
+    setSrc(imgs.blink,sources[blinkFirst ? 0 : 1]);
+  }
+
+  title.textContent =
+    mode === "slider" ? "Положение шторки" :
+    mode === "opacity" ? "Прозрачность второго изображения" :
+    "Скорость мигания";
+
+  adjust.value =
+    mode === "blink" ? blinkSpeed : 50;
+
+  value.textContent =
+    mode === "blink" ? blinkSpeed + " мс" : "50%";
+}
+
+function startBlink() {
+
+  if (!sources[0] || !sources[1]) return;
+
+  if (blinkTimer) clearInterval(blinkTimer);
+
+  blinkTimer = setInterval(() => {
+    blinkFirst = !blinkFirst;
+    setSrc(imgs.blink,sources[blinkFirst ? 0 : 1]);
+  },blinkSpeed);
+}
+
+function setMode(newMode) {
+
+  if (blinkTimer) {
+    clearInterval(blinkTimer);
+    blinkTimer = null;
+  }
+
+  mode = newMode;
+  blinkFirst = true;
+
+  if (mode === "blink") startBlink();
+
+  update();
+}
+
+function loadImage(index,file) {
+
+  if (!file || !file.type.startsWith("image/")) return;
+
+  if (sources[index]) {
+    URL.revokeObjectURL(sources[index]);
+  }
+
+  sources[index] = URL.createObjectURL(file);
+
+  $("name" + (index+1)).textContent = file.name;
+
+  $("card" + (index+1)).classList.add("loaded");
+
+  $("thumb" + (index+1)).innerHTML =
+    `<img src="${sources[index]}" alt="">`;
+
+  update();
+
+  if (mode === "blink") startBlink();
+}
+
+$("file1").addEventListener("change",e => {
+  loadImage(0,e.target.files[0]);
+});
+
+$("file2").addEventListener("change",e => {
+  loadImage(1,e.target.files[0]);
+});
+
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click",() => {
+    setMode(btn.dataset.mode);
+  });
+});
+
+$("split-range").addEventListener("input",e => {
+
+  const v = e.target.value;
+
+  $("mode-slider").style.setProperty("--split",v+"%");
+
+  adjust.value = v;
+  value.textContent = v+"%";
+});
+
+adjust.addEventListener("input",e => {
+
+  const v = Number(e.target.value);
+
+  if (mode === "slider") {
+
+    $("split-range").value = v;
+
+    $("mode-slider").style.setProperty(
+      "--split",v+"%"
+    );
+
+    value.textContent = v+"%";
+  }
+
+  if (mode === "opacity") {
+
+    imgs.opacityTop.style.opacity = v/100;
+
+    value.textContent = v+"%";
+  }
+
+  if (mode === "blink") {
+
+    blinkSpeed = Math.max(100,v*10);
+
+    value.textContent = blinkSpeed+" мс";
+
+    startBlink();
+  }
+});
+
+$("swap").addEventListener("click",() => {
+
+  sources.reverse();
+
+  $("name1").textContent =
+    sources[0] ? "Изображение 2" : "Выбрать из галереи";
+
+  $("name2").textContent =
+    sources[1] ? "Изображение 1" : "Выбрать из галереи";
+
+  $("thumb1").innerHTML =
+    sources[0] ? `<img src="${sources[0]}">` : "＋";
+
+  $("thumb2").innerHTML =
+    sources[1] ? `<img src="${sources[1]}">` : "＋";
+
+  update();
+});
+
+$("reset").addEventListener("click",() => {
+
+  if (blinkTimer) clearInterval(blinkTimer);
+  blinkTimer = null;
+
+  sources.forEach(src => {
+    if (src) URL.revokeObjectURL(src);
+  });
+
+  sources = [null,null];
+
+  ["file1","file2"].forEach(id => $(id).value = "");
+
+  ["name1","name2"].forEach(id => {
+    $(id).textContent = "Выбрать из галереи";
+  });
+
+  ["thumb1","thumb2"].forEach(id => {
+    $(id).textContent = "＋";
+  });
+
+  ["card1","card2"].forEach(id => {
+    $(id).classList.remove("loaded");
+  });
+
+  mode = "side";
+  blinkSpeed = 500;
+
+  $("split-range").value = 50;
+  $("mode-slider").style.setProperty("--split","50%");
+  imgs.opacityTop.style.opacity = .5;
+
+  adjust.value = 50;
+
+  update();
+});
+
+update();
+
 })();
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.warn));
+  window.addEventListener("load",() => {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(error => console.error("SW:",error));
+  });
 }
 </script>
-</body></html>
+
+</body>
+</html>
